@@ -24,6 +24,8 @@ jobs:
         run: npm run build
         env:
           VITE_AZURE_FUNCTIONS_URL: https://dataocrhfunapp-g6ekg0bvhqfycma2.eastus-01.azurewebsites.net/api
+          VITE_PUBLIC_POSTHOG_PROJECT_TOKEN: ${{ secrets.VITE_PUBLIC_POSTHOG_PROJECT_TOKEN }}
+          VITE_PUBLIC_POSTHOG_HOST: ${{ secrets.VITE_PUBLIC_POSTHOG_HOST }}
 
       - name: Deploy
         uses: Azure/static-web-apps-deploy@v1
