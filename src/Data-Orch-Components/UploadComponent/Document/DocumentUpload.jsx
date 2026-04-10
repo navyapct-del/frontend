@@ -69,6 +69,8 @@ function DocumentUpload(props) {
       setLoading(false);
       setInputfields([]);
       setImages([]);
+      // Refresh the page so the new file appears in the list
+      setTimeout(() => window.location.reload(), 1500);
     } catch (error) {
       console.error("Error uploading files:", error);
       setLoading(false);

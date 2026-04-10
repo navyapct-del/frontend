@@ -69,6 +69,7 @@ function ImageUpload(props) {
       setLoading(false);
       setInputfields([]);
       setImages([]);
+      setTimeout(() => window.location.reload(), 1500);
     } catch (error) {
       console.error("Error uploading files:", error);
       setLoading(false);
