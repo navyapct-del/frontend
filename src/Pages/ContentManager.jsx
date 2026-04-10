@@ -187,6 +187,7 @@ export default function ContentManager(props) {
                         date={currentData.map((i) => i.date)}
                         ids={currentData.map((i) => i.id)}
                         filenames={currentData.map((i) => i.filename)}
+                        blobUrls={currentData.map((i) => i.blob_url)}
                         onDelete={handleDeleteDoc}
                         flag={cardEnabled}
                         contentFlag={contentFlag}

@@ -16,6 +16,7 @@ export default function ObjectCard({
   loading,
   ids,
   filenames,
+  blobUrls,
   onDelete,
 }) {
   // Ensure `currentName` is an array and is not null
@@ -78,6 +79,7 @@ export default function ObjectCard({
                 name={currentName[index]}
                 id={ids ? ids[index] : undefined}
                 filename={filenames ? filenames[index] : undefined}
+                blob_url={blobUrls ? blobUrls[index] : undefined}
                 size={currentsize[index]}
                 alldatalength={currentName.length}
                 objdate={date[index]}

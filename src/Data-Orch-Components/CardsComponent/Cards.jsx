@@ -40,12 +40,15 @@ const Cards = (props) => {
   const handleDelete = async (e) => {
     e.stopPropagation();
     if (!window.confirm(`Delete "${props.filename || props.name}"?`)) return;
+    setDeleting(true);
     // Remove card immediately (optimistic update)
     if (props.onDelete) props.onDelete(props.id);
     try {
       await deleteDocument(props.id);
     } catch (err) {
       alert("Delete failed: " + err.message);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -59,16 +62,8 @@ const Cards = (props) => {
   const fileExtension = props.name.split(".").pop().toLowerCase();
   const documentName = fileIcons[fileExtension] || fileIcons.default;
 
-  const cloudfrontFileLink = `https://dwmovw8jpo7wl.cloudfront.net/${props.name.replace(
-    / /g,
-    "%20"
-  )}`;
-
-  // const cloudfrontFileLink = `https://d3te6sdt3808us.cloudfront.net/${props.name.replace(
-  //   / /g,
-  //   "%20"
-  // )}`;
-
+  // Use Azure blob_url directly for file preview; fall back to local icon
+  const cloudfrontFileLink = props.blob_url || "";
   const fileDetails = {
     name: props.name,
     date: props.objdate ? formatDate(props.objdate) : "",
