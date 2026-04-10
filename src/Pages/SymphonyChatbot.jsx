@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import Chart from "chart.js/auto";
+import { useTracking } from "../config/useTracking";
 
 const API_BASE = import.meta.env.VITE_AZURE_FUNCTIONS_URL || "http://localhost:7071/api";
 
@@ -148,6 +149,7 @@ const SymphonyChatbot = () => {
   const [voiceSupported]                = useState(() => "webkitSpeechRecognition" in window || "SpeechRecognition" in window);
   const recognitionRef = useRef(null);
   const chatEndRef     = useRef(null);
+  const { track }      = useTracking();
 
   const startListening = () => {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -176,6 +178,8 @@ const SymphonyChatbot = () => {
     setIsTyping(true);
 
     try {
+      track("bot_query_sent", { query: userText });
+
       const response = await fetch(`${API_BASE}/query`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -194,6 +198,8 @@ const SymphonyChatbot = () => {
       const botId = generateUniqueId();
 
       let content;
+      track("bot_query_response", { query: userText, response_type: data.type || "text" });
+
       if (data.error) {
         content = { type: "text", text: data.error };
       } else if (data.type === "chart" && data.chart_config) {
