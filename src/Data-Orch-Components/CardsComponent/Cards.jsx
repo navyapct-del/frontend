@@ -3,15 +3,39 @@ import DocumentModal from "./DocumentModal";
 import ImageModal from "./ImageModal";
 import documentUrl from "../../assets/images/folder.png";
 import VideoModal from "../../Data-Orch-Components/CardsComponent/VideoModal";
-import pdf_Url from "../../assets/images/pdf.png";
+import pdf_Url  from "../../assets/images/pdf.png";
 import docx_Url from "../../assets/images/docx.png";
 import text_Url from "../../assets/images/text.png";
 import other_Url from "../../assets/images/other.png";
+import xlsx_Url from "../../assets/images/xlsx.svg";
 import videojs from "video.js";
 import "video.js/dist/video-js.css";
 import "videojs-contrib-quality-levels";
 import "videojs-http-source-selector";
 import { deleteDocument } from "../../config/ApiCall";
+
+const API_BASE = import.meta.env.VITE_AZURE_FUNCTIONS_URL || "http://localhost:7071/api";
+
+// Fetches a SAS URL for private blob images so they display in the browser
+const ImageWithSas = ({ blobUrl, onClick }) => {
+  const [src, setSrc] = React.useState(other_Url);
+  React.useEffect(() => {
+    if (!blobUrl) return;
+    fetch(`${API_BASE}/blob-url?url=${encodeURIComponent(blobUrl)}`)
+      .then((r) => r.json())
+      .then((d) => { if (d.url) setSrc(d.url); })
+      .catch(() => setSrc(blobUrl)); // fallback to direct URL
+  }, [blobUrl]);
+  return (
+    <img
+      alt="Image"
+      src={src}
+      onClick={onClick}
+      onError={(e) => { e.target.onerror = null; e.target.src = other_Url; }}
+      style={{ objectFit: "cover", width: "100%", height: "80px", borderRadius: "4px", cursor: "pointer" }}
+    />
+  );
+};
 
 // Utility function for formatting dates
 const formatDate = (dateString) => {
@@ -23,15 +47,15 @@ const formatDate = (dateString) => {
   return `${day}-${month}-${year} ${time}`;
 };
 
-// Mapping for file extensions to image URLs
+// Mapping for file extensions to icon images
 const fileIcons = {
-  pdf:   pdf_Url,
-  docx:  docx_Url,
-  doc:   docx_Url,
-  txt:   text_Url,
-  csv:   text_Url,
-  xlsx:  docx_Url,
-  xls:   docx_Url,
+  pdf:     pdf_Url,
+  docx:    docx_Url,
+  doc:     docx_Url,
+  txt:     text_Url,
+  csv:     text_Url,
+  xlsx:    xlsx_Url,
+  xls:     xlsx_Url,
   default: other_Url,
 };
 
@@ -183,18 +207,27 @@ const Cards = (props) => {
   const renderImage = () => (
     <>
       <div className="file box rounded-md px-5 pt-8 pb-5 sm:px-5 relative zoom-in">
+        <button
+          onClick={handleDelete}
+          disabled={deleting}
+          title="Delete"
+          style={{ position:"absolute", top:"6px", right:"6px", background:"none", border:"none", cursor:"pointer", color:"#ef4444", padding:"2px" }}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
+          </svg>
+        </button>
         <div className="absolute left-0 top-0 mt-3 ml-3"></div>
         <div className="w-3/5 file__icon file__icon--image mx-auto">
           <div className="file__icon--image__preview image-fit">
-            <img
-              alt="Image"
-              src={cloudfrontFileLink}
+            <ImageWithSas
+              blobUrl={cloudfrontFileLink}
               onClick={() => setShowImageModal(true)}
             />
           </div>
         </div>
         <div className="block font-medium mt-4 text-center truncate">
-          {props.name.split("/").pop().slice(0, 8)}...
+          {(props.filename || (props.name || "").split("/").pop()).slice(0, 12)}
         </div>
         <div className="text-slate-500 text-xs text-center mt-0.5">
           {props.objdate ? formatDate(props.objdate) : ""}
