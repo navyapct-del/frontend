@@ -25,10 +25,13 @@ const formatDate = (dateString) => {
 
 // Mapping for file extensions to image URLs
 const fileIcons = {
-  pdf: pdf_Url,
-  docx: docx_Url,
-  doc: docx_Url,
-  txt: text_Url,
+  pdf:   pdf_Url,
+  docx:  docx_Url,
+  doc:   docx_Url,
+  txt:   text_Url,
+  csv:   text_Url,
+  xlsx:  docx_Url,
+  xls:   docx_Url,
   default: other_Url,
 };
 
@@ -59,7 +62,7 @@ const Cards = (props) => {
   const [showImageModal, setShowImageModal] = useState(false);
   const [showVideoModal, setShowVideoModal] = useState(false);
 
-  const fileExtension = props.name.split(".").pop().toLowerCase();
+  const fileExtension = ((props.filename || props.name || "").split(".").pop() || "").toLowerCase();
   const documentName = fileIcons[fileExtension] || fileIcons.default;
 
   // Use Azure blob_url directly for file preview; fall back to local icon
@@ -159,7 +162,7 @@ const Cards = (props) => {
           </div>
         </div>
         <div className="block font-medium mt-4 text-center truncate">
-          {props.name.split("/").pop().slice(0, 8)}...
+          {(props.filename || (props.name || "").split("/").pop()).slice(0, 12)}
         </div>
         <div className="text-slate-500 text-xs text-center mt-0.5">
           {props.objdate ? formatDate(props.objdate) : ""}
