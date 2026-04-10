@@ -13,7 +13,6 @@ import "video.js/dist/video-js.css";
 import "videojs-contrib-quality-levels";
 import "videojs-http-source-selector";
 import { deleteDocument } from "../../config/ApiCall";
-import { useTracking } from "../../config/useTracking";
 
 const API_BASE = import.meta.env.VITE_AZURE_FUNCTIONS_URL || "http://localhost:7071/api";
 
@@ -64,14 +63,12 @@ const Cards = (props) => {
   const [showDocumentModal, setShowDocumentModal] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const { track } = useTracking();
 
   const handleDelete = async (e) => {
     e.stopPropagation();
     if (!window.confirm(`Delete "${props.filename || props.name}"?`)) return;
     setDeleting(true);
     if (props.onDelete) props.onDelete(props.id);
-    track("file_deleted", { filename: props.filename, file_id: props.id });
     try {
       await deleteDocument(props.id);
     } catch (err) {
