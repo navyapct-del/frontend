@@ -16,16 +16,9 @@ import { deleteDocument } from "../../config/ApiCall";
 
 const API_BASE = import.meta.env.VITE_AZURE_FUNCTIONS_URL || "http://localhost:7071/api";
 
-// Fetches a SAS URL for private blob images so they display in the browser
-const ImageWithSas = ({ blobUrl, onClick }) => {
-  const [src, setSrc] = React.useState(other_Url);
-  React.useEffect(() => {
-    if (!blobUrl) return;
-    fetch(`${API_BASE}/blob-url?url=${encodeURIComponent(blobUrl)}`)
-      .then((r) => r.json())
-      .then((d) => { if (d.url) setSrc(d.url); })
-      .catch(() => setSrc(blobUrl)); // fallback to direct URL
-  }, [blobUrl]);
+// Use backend proxy to serve private blob images
+const ImageWithSas = ({ blobUrl, docId, onClick }) => {
+  const src = docId ? `${API_BASE}/file?id=${docId}` : (blobUrl || other_Url);
   return (
     <img
       alt="Image"
@@ -88,8 +81,10 @@ const Cards = (props) => {
   const fileExtension = ((props.filename || props.name || "").split(".").pop() || "").toLowerCase();
   const documentName = fileIcons[fileExtension] || fileIcons.default;
 
-  // Use Azure blob_url directly for file preview; fall back to local icon
-  const cloudfrontFileLink = props.blob_url || "";
+  // Use backend proxy URL to serve private blobs — avoids PublicAccessNotPermitted
+  const cloudfrontFileLink = props.id
+    ? `${API_BASE}/file?id=${props.id}`
+    : (props.blob_url || "");
   const fileDetails = {
     name: props.name,
     date: props.objdate ? formatDate(props.objdate) : "",
@@ -221,6 +216,7 @@ const Cards = (props) => {
           <div className="file__icon--image__preview image-fit">
             <ImageWithSas
               blobUrl={cloudfrontFileLink}
+              docId={props.id}
               onClick={() => setShowImageModal(true)}
             />
           </div>
